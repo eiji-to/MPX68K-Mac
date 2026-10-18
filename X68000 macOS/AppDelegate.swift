@@ -1150,7 +1150,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         let helpMenu = NSMenu(title: "Help")
         helpMenuItem.submenu = helpMenu
 
-        let helpItem = NSMenuItem(title: "MPX68K Help", action: #selector(NSApplication.showHelp(_:)), keyEquivalent: "?")
+        let helpItem = NSMenuItem(title: "MPX68Kの使い方…", action: #selector(showQuickStart(_:)), keyEquivalent: "?")
+        helpItem.target = self
         helpMenu.addItem(helpItem)
 
         mainMenu.addItem(helpMenuItem)
@@ -1164,6 +1165,40 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         NSApplication.shared.mainMenu = mainMenu
 
         infoLog("Successfully rebuilt menu system programmatically", category: .ui)
+    }
+
+    @objc private func showQuickStart(_ sender: Any?) {
+        let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+            .first?.appendingPathComponent(FileSystem.documentsDirectoryName)
+        let alert = NSAlert()
+        alert.messageText = "MPX68Kの使い方"
+        alert.informativeText = """
+        1. 初回起動時に IPLROM.DAT と CGROM.DAT を選択します。複数選択できます。
+        2. 起動用ディスクを選択します。通常は FDD 0 を使用します。
+        3. ディスク交換は FDD → Open Drive 0… / Open Drive 1… から行います。
+        4. 再起動は System → Reset System、画面回転は ⌘R です。
+
+        ジョイパッド操作：方向キー / WASD、Aボタン＝Space / J、Bボタン＝Z / K。
+        X68000マウスの切り替え：⇧⌘M。
+
+        ROM・SRAMの保存先：
+        \(directory?.path ?? "書類/MPX68K")
+
+        ROMとディスクイメージはアプリに含まれません。
+        MPX68K / px68k と各構成要素の作者に感謝します。
+        """
+        alert.addButton(withTitle: "閉じる")
+        alert.addButton(withTitle: "データフォルダを開く")
+        let handleResponse: (NSApplication.ModalResponse) -> Void = { response in
+            if response == .alertSecondButtonReturn, let directory = directory {
+                NSWorkspace.shared.open(directory)
+            }
+        }
+        if let window = NSApp.mainWindow ?? NSApp.keyWindow {
+            alert.beginSheetModal(for: window, completionHandler: handleResponse)
+        } else {
+            handleResponse(alert.runModal())
+        }
     }
 
     // MARK: - CRT Display Mode Actions

@@ -428,8 +428,8 @@ class GameViewController: NSViewController {
         }
 
         let openPanel = NSOpenPanel()
-        openPanel.title = "Select MPX68K ROM Files"
-        openPanel.message = "Select \(missing.joined(separator: " and ")) to import into Documents/MPX68K."
+        openPanel.title = "X68000のROMファイルを選択"
+        openPanel.message = "\(missing.joined(separator: " と ")) を選択してください。書類/MPX68K にコピーして使用します。複数選択できます。"
         if #available(macOS 11.0, *) {
             openPanel.allowedContentTypes = [UTType(filenameExtension: "dat") ?? .data]
         } else {
@@ -516,8 +516,8 @@ class GameViewController: NSViewController {
         }
 
         let alert = NSAlert()
-        alert.messageText = "ROM Files Required"
-        alert.informativeText = "ROM files still missing: \(remainingList)."
+        alert.messageText = "ROMファイルが必要です"
+        alert.informativeText = "次のファイルを選択してください：\(remainingList)"
         alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")
 

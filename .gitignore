@@ -117,3 +117,20 @@ tests/core/test_fdd_mount
 tests/core/test_sram_scsi
 tests/core/test_sysport
 tests/core/_test_image.d88
+
+# Local emulation media (never publish)
+*.DAT
+*.dat
+*.dim
+*.xdf
+*.2hd
+*.d88
+*.hdm
+*.hdf
+*.hds
+*.rom
+
+# Additional host test binaries
+tests/core/test_crtc_timing
+tests/core/test_mfp_hsync
+tests/core/test_scrbuf
