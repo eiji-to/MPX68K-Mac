@@ -134,3 +134,5 @@ tests/core/_test_image.d88
 tests/core/test_crtc_timing
 tests/core/test_mfp_hsync
 tests/core/test_scrbuf
+
+tests/core/test_legacy_ipl_boot

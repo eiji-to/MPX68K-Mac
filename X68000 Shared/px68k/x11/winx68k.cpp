@@ -47,9 +47,13 @@ extern "C" {
 #include "scc.h"
 #include "midi.h"
 #include "sram.h"
+#include "../x68k/legacy_ipl_boot.h"
+
 #include "gvram.h"
 #include "tvram.h"
 #include "mouse.h"
+
+static int s_legacy_boot_probe_pending = 1;
 
 #include "dswin.h"
 #include "fmg_wrap.h"
@@ -500,6 +504,7 @@ WinX68k_LoadROMs(void)
 int
 WinX68k_Reset(void)
 {
+    s_legacy_boot_probe_pending = 1;
     // Don't clear the log on reset — preserve boot log for debugging.
     s_appendlog_total = 0;  // Reset log counter so post-reset entries are logged
     X68000_AppendSCSILog("--- core reset ---");
@@ -845,6 +850,17 @@ static int WinX68k_FieldCycles10M(int *active_vline_total)
 // -----------------------------------------------------------------------------------
 void WinX68k_Exec(const long clockMHz, const long vsync)
 {
+    // Swift restores SRAM after core reset. Apply once, immediately before
+    // execution, so the probe uses the restored boot handle on every reset.
+    if (s_legacy_boot_probe_pending) {
+        uint32_t handle = ((uint32_t)SRAM[0x0c ^ 1] << 24) |
+                          ((uint32_t)SRAM[0x0d ^ 1] << 16) |
+                          ((uint32_t)SRAM[0x0e ^ 1] << 8) |
+                          SRAM[0x0f ^ 1];
+        LegacyIPL_UpdateBootProbe(IPL, 0x40000, handle);
+        s_legacy_boot_probe_pending = 0;
+    }
+
     //char *test = NULL;
     int clk_total, clk_num, clk_den, usedclk, hsync, clk_next, clk_count;
     int active_vline_total;
